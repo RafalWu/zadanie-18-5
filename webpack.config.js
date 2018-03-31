@@ -1,21 +1,35 @@
 const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-entry: (env !== 'production' ? [
+const env = process.env.NODE_ENV || 'development';
+
+const plugins = [
+    new HtmlWebpackPlugin({
+        template: 'client/index.html',
+        filename: 'index.html',
+        inject: 'body',
+    })
+];
+
+console.log('NODE_ENV:', env);
+
+if (env === 'production') {
+    plugins.push(
+        new webpack.optimize.UglifyJsPlugin()
+    );
+}
+
+module.exports = {
+    entry: (env !== 'production' ? [
         'react-hot-loader/patch',
         'webpack-dev-server/client?http://localhost:8080',
         'webpack/hot/only-dev-server',
     ] : []).concat(['./client/index.js']),
-output: {
-  filename: './bundle.js',
-  path: path.resolve(__dirname, 'public'),
-}
-
-
-module.exports = {
-    entry: './src/app.js',
-        output: {
-        path: path.resolve(__dirname, 'build'),
-        filename: 'app.bundle.js'
+    output: {
+      filename: 'bundle.js',
+      path: path.resolve(__dirname, 'public'),
     },
     module: {
 		rules: [
@@ -36,5 +50,6 @@ module.exports = {
 				]
 			}
 		]
-    }
+    },
+    plugins
 };
